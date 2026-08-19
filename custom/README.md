@@ -12,5 +12,6 @@
 | 目录 | 内容 |
 | --- | --- |
 | `launcher/` | Web 启动脚本（start-dsh.bat、_backend.cmd、launcher.html、README） |
+| `plugins/` | 本地已安装第三方插件清单与安装方式（2026-08 快照） |
 
 后续扩展（如 `patches/`、`utils/`）请继续放在本目录下并补充 README。
