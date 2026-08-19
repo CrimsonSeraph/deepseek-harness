@@ -9,7 +9,7 @@
 | 文件 | 作用 |
 | --- | --- |
 | `start-dsh.bat` | 入口：环境检测、端口检测、启动后端窗口、打开应用/等待页 |
-| `_backend.cmd` | 后端窗口内执行的步骤：git pull → pnpm install → build → lefthook → pnpm dsh web |
+| `_backend.cmd` | 后端窗口内执行的步骤：git pull → pnpm install → build → lefthook → pnpm dsh web --no-open |
 | `launcher.html` | 启动等待页：轮询端口，就绪后自动跳转（支持 `?port=` 参数） |
 | `.gitattributes` | 限定本目录 `.bat`/`.cmd` 工作区为 CRLF（仓库内仍为 LF），保证 cmd.exe 可靠解析 |
 
@@ -25,8 +25,9 @@
 2. 检测端口（默认 `3080`）是否已被监听：
    - 已在运行 → 直接打开应用，**不会**重复启动后端；
    - 未运行 → 在独立控制台窗口（标题 `DeepSeek Harness backend`）中依次执行
-     拉取、安装依赖、构建、安装 git hooks（仅首次）、启动 `pnpm dsh web`，
+     拉取、安装依赖、构建、安装 git hooks（仅首次）、启动 `pnpm dsh web --no-open`，
      同时打开 `launcher.html` 轮询等待就绪；
+     `--no-open` 禁止 dsh web 自行打开浏览器，应用窗口统一由启动器打开（避免双窗口）；
 3. 浏览器选择：Edge → Chrome → 系统默认浏览器。
 
 ## 环境变量
@@ -59,3 +60,4 @@ start-dsh.bat
 - **构建/安装失败**：看后端控制台窗口中的报错日志（窗口由 `cmd /k` 保持打开）；
 - **端口被占用**：其他程序占用 3080 时，改用 `set DSH_PORT=3081` 等端口；
 - **中文乱码**：两个脚本以 GBK（代码页 936）保存以匹配中文 Windows 控制台（cmd 默认代码页 936）；若系统为其他区域设置，中文可能显示为乱码，可将脚本转为对应代码页或启用系统级 UTF-8（`chcp 65001` 需要脚本以 UTF-8 保存，二者不可混用）。
+- **报错 `... was unexpected at this time.`**：位于括号块内的 echo 文本不能包含未转义的 ASCII 半角括号（cmd 会将其解析为嵌套块，紧随其后的内容被当作命令）。本脚本已统一改用全角括号（如（pnpm install --ignore-scripts））；自行修改时请沿用此约定，或用 `^(` / `^)` 转义。

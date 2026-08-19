@@ -24,7 +24,7 @@ if defined DSH_DRY_RUN (
   echo   - pnpm install --ignore-scripts
   echo   - pnpm run build
   echo   - npx lefthook install（仅当 .git\hooks 未安装时）
-  echo   - pnpm dsh web
+  echo   - pnpm dsh web --no-open
   echo [DRY RUN] 完毕。本窗口由 cmd /k 保持打开，可直接关闭。
   exit /b 0
 )
@@ -47,7 +47,7 @@ rem [2/4] 安装依赖
 if defined DSH_NO_INSTALL (
   echo [SKIP] DSH_NO_INSTALL 已设置，跳过依赖安装。
 ) else (
-  echo [2/4] 安装依赖 (pnpm install --ignore-scripts)...
+  echo [2/4] 安装依赖（pnpm install --ignore-scripts）...
   call pnpm install --ignore-scripts
   if errorlevel 1 (
     echo [ERROR] 依赖安装失败，请检查网络或 pnpm 配置。请查看上方日志。
@@ -59,7 +59,7 @@ rem [3/4] 构建
 if defined DSH_NO_BUILD (
   echo [SKIP] DSH_NO_BUILD 已设置，跳过构建。
 ) else (
-  echo [3/4] 构建 (pnpm run build)...
+  echo [3/4] 构建（pnpm run build）...
   call pnpm run build
   if errorlevel 1 (
     echo [ERROR] 构建失败，请查看上方日志。
@@ -69,12 +69,12 @@ if defined DSH_NO_BUILD (
 
 rem [hook] 安装 git hooks（仅当未安装时）
 if not exist "%APP_DIR%\.git\hooks\pre-commit" (
-  echo [hook] 安装 git hooks (npx lefthook install)...
+  echo [hook] 安装 git hooks（npx lefthook install）...
   call npx lefthook install
 ) else (
   echo [hook] git hooks 已安装，跳过。
 )
 
 rem [4/4] 启动 Web 服务
-echo [4/4] 启动 Web 服务: pnpm dsh web ^(按 Ctrl+C 可停止，关闭本窗口即停止服务^)
-call pnpm dsh web
+echo [4/4] 启动 Web 服务: pnpm dsh web --no-open ^(按 Ctrl+C 可停止，关闭本窗口即停止服务^)
+call pnpm dsh web --no-open
