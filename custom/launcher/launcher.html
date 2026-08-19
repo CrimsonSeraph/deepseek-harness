@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+
+    <title>正在启动 DeepSeek Harness…</title>
+
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+        background: radial-gradient(
+          1200px 600px at 50% -10%,
+          #1b2230 0%,
+          #0f1115 55%
+        );
+        color: #e8ecf1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .card {
+        text-align: center;
+        padding: 48px 56px;
+        max-width: 460px;
+      }
+      .spinner {
+        width: 44px;
+        height: 44px;
+        margin: 0 auto 26px;
+        border-radius: 50%;
+        border: 4px solid #2a3446;
+        border-top-color: #4f8cff;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 12px;
+        font-weight: 600;
+      }
+      p {
+        font-size: 14px;
+        line-height: 1.8;
+        color: #9aa7b8;
+        margin: 0 0 6px;
+      }
+      code {
+        background: #1a2130;
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #c9d4e3;
+      }
+      #status {
+        font-size: 13px;
+        color: #6f7d91;
+        margin-top: 14px;
+        min-height: 1.2em;
+      }
+      #direct {
+        display: inline-block;
+        margin-top: 18px;
+        font-size: 13px;
+      }
+      #fallback {
+        display: none;
+        margin-top: 10px;
+      }
+      #hint {
+        display: none;
+        margin-top: 14px;
+        font-size: 12px;
+        color: #c9a25a;
+      }
+      a {
+        color: #4f8cff;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <div class="spinner"></div>
+
+      <h1>正在启动 DeepSeek Harness</h1>
+
+      <p>
+        后端服务正在独立的控制台窗口（标题：<code>DeepSeek Harness backend</code>）中启动。<br />
+        首次启动需要安装依赖并构建，可能耗时数分钟。
+      </p>
+
+      <p id="status">正在检测服务端口…</p>
+      <p><a id="direct" href="http://127.0.0.1:3080">直接打开应用</a></p>
+      <p id="fallback">
+        <a href="http://127.0.0.1:3080">如果长时间未跳转，请点击此处直接打开</a>
+      </p>
+      <p id="hint">长时间未就绪？请查看后端控制台窗口中的日志。</p>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+        var port = new URLSearchParams(window.location.search).get("port") || "3080";
+        var URL = "http://127.0.0.1:" + port;
+        document.getElementById("direct").href = URL;
+        document.getElementById("fallback").href = URL;
+        var statusEl = document.getElementById("status");
+        var fallbackEl = document.getElementById("fallback");
+        var hintEl = document.getElementById("hint");
+        var start = Date.now();
+        var n = 0;
+        var shown = false;
+        var hinted = false;
+
+        function fmt(ms) {
+          var s = Math.floor(ms / 1000);
+          var m = Math.floor(s / 60);
+          return m + ":" + ("0" + (s % 60)).slice(-2);
+        }
+
+        function render() {
+          statusEl.textContent =
+            n === 1
+              ? "正在检测服务端口…"
+              : "已等待 " + fmt(Date.now() - start) + "（第 " + n + " 次检测）";
+          if (n > 40 && !shown) {
+            fallbackEl.style.display = "block";
+            shown = true;
+          }
+          if (n > 120 && !hinted) {
+            hintEl.style.display = "block";
+            hinted = true;
+          }
+        }
+
+        function go() {
+          location.replace(URL);
+        }
+
+        function check() {
+          n++;
+          render();
+          if (n > 300) return;
+          fetch(URL, { mode: "no-cors", cache: "no-store" })
+            .then(function () {
+              // 端口已响应，等待 3 秒后再跳转，给服务更多初始化时间
+              setTimeout(go, 3000);
+            })
+            .catch(function () {
+              setTimeout(check, 1500);
+            });
+        }
+
+        check();
+      })();
+    </script>
+  </body>
+</html>

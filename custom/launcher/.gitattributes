@@ -1,0 +1,5 @@
+# cmd.exe needs CRLF in the working tree for .bat/.cmd (labels/goto are
+# unreliable with LF-only files). In-repo form stays LF; CRLF is
+# checkout-time presentation only, per the root .gitattributes convention.
+*.bat text eol=crlf
+*.cmd text eol=crlf
