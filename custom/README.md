@@ -13,5 +13,6 @@
 | --- | --- |
 | `launcher/` | Web 启动脚本（start-dsh.bat、_backend.cmd、launcher.html、README） |
 | `plugins/` | 本地已安装第三方插件清单与安装方式（2026-08 快照） |
+| `MCP/` | 本机 MCP 工具集（godot-mcp、qtcreator-mcp）：可运行副本、安装/使用说明、快捷启动脚本、DSH 注册片段 |
 
 后续扩展（如 `patches/`、`utils/`）请继续放在本目录下并补充 README。

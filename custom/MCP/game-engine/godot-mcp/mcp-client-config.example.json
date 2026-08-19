@@ -1,0 +1,19 @@
+{
+  "_comment": "godot-mcp client registration examples. Replace <GODOT_MCP_HOME> and <GODOT_EXE> with local values (see ../README.md placeholder legend). GODOT_PATH is set as a persistent user env var, but including it here is more robust (some clients sanitize env).",
+  "mcpServers": {
+    "godot": {
+      "command": "node",
+      "args": ["<GODOT_MCP_HOME>/build/index.js"],
+      "env": {
+        "GODOT_PATH": "<GODOT_EXE>"
+      }
+    }
+  },
+  "_clients": {
+    "Claude Code": "~/.claude.json -> add the mcpServers.godot block",
+    "Cline (VS Code)": "cline_mcp_settings.json -> add the mcpServers.godot block",
+    "Cursor": "project .cursor/mcp.json -> add the mcpServers.godot block",
+    "generic stdio MCP client": "command: node, args: [<GODOT_MCP_HOME>/build/index.js]"
+  },
+  "_runtime_tools_reminder": "game_* tools need mcp_interaction_server.gd registered as the McpInteractionServer autoload in the Godot project (Project > Project Settings > Autoload). Source: <GODOT_MCP_HOME>/build/scripts/mcp_interaction_server.gd"
+}
