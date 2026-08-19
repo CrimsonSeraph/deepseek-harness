@@ -17,7 +17,7 @@
 
 1. 直接双击 `start-dsh.bat`；
 2. 或让桌面快捷方式指向它：右键「DeepSeek Harness」快捷方式 → 属性 → 目标改为
-   `custom\launcher\start-dsh.bat`（起始位置可留空）。
+   本仓库 `custom\launcher\start-dsh.bat` 的绝对路径（起始位置可留空）。
 
 ## 工作流程
 
