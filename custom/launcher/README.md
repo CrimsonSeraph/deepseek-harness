@@ -9,7 +9,7 @@
 | 文件 | 作用 |
 | --- | --- |
 | `start-dsh.bat` | 入口：环境检测、端口检测、启动后端窗口、打开应用/等待页 |
-| `_backend.cmd` | 后端窗口内执行的步骤：浅拉取（fetch --depth=1）→ pnpm install → build → lefthook → pnpm dsh web --no-open |
+| `_backend.cmd` | 后端窗口内执行的步骤：浅拉取（fetch --depth=1）→ 子模块同步 → pnpm install → build → lefthook → pnpm dsh web --no-open |
 | `launcher.html` | 启动等待页：轮询端口，就绪后自动跳转（支持 `?port=` 参数） |
 | `.gitattributes` | 限定本目录 `.bat`/`.cmd` 工作区为 CRLF（仓库内仍为 LF），保证 cmd.exe 可靠解析 |
 
@@ -26,6 +26,7 @@
    - 已在运行 → 直接打开应用，**不会**重复启动后端；
    - 未运行 → 在独立控制台窗口（标题 `DeepSeek Harness backend`）中依次执行
      **浅拉取**（`git fetch --depth=1` + `git reset --hard FETCH_HEAD`，只取目标分支最新提交，本地仅保留最新一次提交）、
+     **子模块同步**（`git submodule update --init --recursive`，对齐到拉取后记录的子模块提交，如 `custom/MCP/game-engine/godot-mcp`）、
      安装依赖、构建、安装 git hooks（仅首次）、启动 `pnpm dsh web --no-open`，
      同时打开 `launcher.html` 轮询等待就绪；
      `--no-open` 禁止 dsh web 自行打开浏览器，应用窗口统一由启动器打开（避免双窗口）；
@@ -60,6 +61,7 @@ start-dsh.bat
 
 - 每次启动执行 `git fetch --depth=1 origin <分支>`，只下载目标分支的最新一次提交；
 - 拉取后本地仅保留最新一次提交（`reflog expire` + `git gc --prune=now` 清理旧对象），仓库始终处于浅克隆状态；
+- 浅拉取后执行 `git submodule update --init --recursive`，把子模块（如 `custom/MCP/game-engine/godot-mcp`）对齐到新提交记录的版本；首次会自动克隆子模块；
 - **安全保护**：工作区有未提交修改时跳过更新；本地有未推送提交时保留本地并提示（推送后可自动对齐，或设 `DSH_PULL_FORCE=1` 强制对齐）；
 - 本地提交请先推送到远端再更新，否则会被浅拉取对齐时丢弃。
 

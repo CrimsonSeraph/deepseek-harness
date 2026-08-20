@@ -21,6 +21,7 @@ cd /d "%APP_DIR%"
 if defined DSH_DRY_RUN (
   echo [DRY RUN] 以下步骤将被执行（不会真正运行）:
   echo   - git fetch --depth=1 origin master + git reset --hard FETCH_HEAD（浅拉取，仅保留最新提交）
+echo   - git submodule update --init --recursive（同步子模块到记录版本）
   echo   - pnpm install --ignore-scripts
   echo   - pnpm run build
   echo   - npx lefthook install（仅当 .git\hooks 未安装时）
@@ -72,6 +73,13 @@ git reset --hard FETCH_HEAD
 if errorlevel 1 (
   echo [ERROR] git reset 失败，使用现有代码继续。
   goto :pull_done
+)
+rem ---- 同步子模块（首次克隆并对齐到当前提交记录的版本）----
+git submodule update --init --recursive
+if errorlevel 1 (
+  echo [WARN] 子模块更新失败，可稍后手动执行 git submodule update --init --recursive。
+) else (
+  echo [OK] 子模块已同步。
 )
 if "%OLD_TIP%"=="%NEW_TIP%" (
   echo [OK] 已是最新（%PULL_BRANCH%），本地仅保留最新一次提交。

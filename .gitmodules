@@ -1,0 +1,4 @@
+[submodule "custom/MCP/game-engine/godot-mcp"]
+	path = custom/MCP/game-engine/godot-mcp
+	url = https://github.com/CrimsonSeraph/godot-mcp.git
+	branch = main

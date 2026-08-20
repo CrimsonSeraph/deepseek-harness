@@ -1,28 +1,23 @@
-# godot-mcp — Godot 引擎 MCP 服务器（分类：game-engine）
+# godot-mcp-local — godot-mcp 本地文档与脚本（分类：game-engine）
 
-仓库：[tugcantopaloglu/godot-mcp](https://github.com/tugcantopaloglu/godot-mcp)（v3.1.0，MIT，157 工具，Godot 4.4+，本机 Steam 版 Godot 4.7.x）
-
-> **本目录是「复制副本」**：`<GODOT_MCP_HOME>` 为原始安装位置，当前仍被 DSH 桥接进程直接使用
-> （`node <GODOT_MCP_HOME>/build/index.js`），因此按安全原则复制而非移动。切换 DSH 指向本副本的
-> 方法见下文「DSH 注册」。上游原始 README 保留为 `README.upstream.md`。
-> 本文件不包含本机绝对路径/用户名，占位符定义见上级 `MCP/README.md`。
-
-## 目录内容
+godot-mcp 本体以 **git 子模块** 形式挂载于 `custom/MCP/game-engine/godot-mcp/`，
+指向 https://github.com/CrimsonSeraph/godot-mcp（含 tsconfig 的 `node10` 修复）。
+本目录保存原本随「复制副本」一并入库的本地文档与快捷脚本——子模块内不存放本地修改，
+克隆仓库后需先 `git submodule update --init --recursive` 拉取本体。
 
 | 路径 | 说明 |
 | --- | --- |
-| `./` | 完整可运行副本：源码 + `node_modules` + 构建产物 `build/`（含 `scripts/mcp_interaction_server.gd`）。`node_modules/` 与 `build/` 已 gitignore、不入库；克隆后执行 `npm install`（自动触发 build）即可重新生成 |
 | `README.md`（本文件） | 安装 / 使用 / 注册说明 |
 | `README.upstream.md` | 上游官方 README（原样保留） |
-| `scripts/godot-mcp.ps1` | 校验或前台启动服务器 |
+| `scripts/godot-mcp.ps1` | 校验或前台启动服务器（构建产物位于子模块内） |
+| `mcp-client-config.example.json` | 客户端注册配置示例 |
 
-## 安装方式（原位置重装步骤）
+## 安装方式（首次克隆后）
 
 ```powershell
-git clone https://github.com/tugcantopaloglu/godot-mcp.git <GODOT_MCP_HOME>
-cd <GODOT_MCP_HOME>
-npm install          # 会触发 prepare -> npm run build（tsc 编译到 build/）
-npm audit fix        # 可选：清零已知漏洞（2026-08 实测 18 -> 0）
+git submodule update --init --recursive   # 拉取 godot-mcp 子模块
+cd custom/MCP/game-engine/godot-mcp
+npm install                                # 触发 prepare -> npm run build（tsc 编译到 build/）
 ```
 
 要求：Node.js >= 18（本机 v22）；Godot 4.4+（本机 Steam 版 **4.7.x**，路径见 `<GODOT_EXE>`）。
@@ -44,8 +39,7 @@ npm audit fix        # 可选：清零已知漏洞（2026-08 实测 18 -> 0）
         transport: stdio
         command: node
         args:
-          - '<GODOT_MCP_HOME>/build/index.js'   # 原位置（当前生效）
-          # - '<REPO_ROOT>/custom/MCP/game-engine/godot-mcp/build/index.js'  # 若切到本副本
+          - '<REPO_ROOT>/custom/MCP/game-engine/godot-mcp/build/index.js'
         env:
           GODOT_PATH: '<GODOT_EXE>'
 ```
@@ -56,7 +50,7 @@ npm audit fix        # 可选：清零已知漏洞（2026-08 实测 18 -> 0）
 
 1. **项目管理类**（无需运行游戏）：`run_project`、`create_scene`、`read_scene`、`validate_script`、`list_project_files` 等。
 2. **运行时类 `game_*`**（需游戏运行 + autoload）：
-   - 将 `build/scripts/mcp_interaction_server.gd` 复制到 Godot 项目（如 `<GODOT_PROJECT>`）；
+   - 将 `custom/MCP/game-engine/godot-mcp/build/scripts/mcp_interaction_server.gd` 复制到 Godot 项目（如 `<GODOT_PROJECT>`）；
    - Godot：**Project → Project Settings → Autoload** 注册为 `McpInteractionServer`；
    - 之后 `game_eval`、`game_get_scene_tree`、`game_screenshot`、`game_key_press` 等生效（监听 `127.0.0.1:9090`）。
 
@@ -70,9 +64,10 @@ npm audit fix        # 可选：清零已知漏洞（2026-08 实测 18 -> 0）
 
 ## 原位置对照
 
-| 内容 | 原位置 | 本副本 |
+| 内容 | 原位置（继续使用） | 现在 |
 | --- | --- | --- |
-| godot-mcp 完整安装 | `<GODOT_MCP_HOME>` | `custom/MCP/game-engine/godot-mcp/` |
+| godot-mcp 本体 | `<GODOT_MCP_HOME>` | 子模块 `custom/MCP/game-engine/godot-mcp/` |
+| 本地文档 / 快捷脚本 | 随复制副本入库 | 本目录 `godot-mcp-local/` |
 | 用户环境变量 | `GODOT_PATH`（用户级，持久） | 文档化于上表 |
-| DSH 注册 | `~/.dsh/cordis.patch.yml`（`mcp-godot` 块，指向原位置） | 文档化于上节 |
+| DSH 注册 | `~/.dsh/cordis.patch.yml`（`mcp-godot` 块） | 文档化于上节 |
 | 客户端配置示例 | `<GODOT_MCP_HOME>/mcp-client-config.example.json` | 本目录同名文件 |

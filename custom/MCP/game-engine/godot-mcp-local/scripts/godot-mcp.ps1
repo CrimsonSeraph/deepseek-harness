@@ -6,9 +6,10 @@
 #   .\scripts\godot-mcp.ps1 -GodotPath "D:\Godot\Godot.exe"
 #
 # Notes:
-#   - This copy lives at custom/MCP/game-engine/godot-mcp/. The original working install is
-#     <GODOT_MCP_HOME> (the DSH bridge currently uses the original). To point DSH at this
-#     copy, edit the mcp-godot args path in cordis.patch.yml (see README.md).
+#   - This helper lives at custom/MCP/game-engine/godot-mcp-local/scripts/. The godot-mcp
+#     submodule is mounted at custom/MCP/game-engine/godot-mcp/ (see README.md); this script
+#     runs its build output. To point DSH at the submodule, edit the mcp-godot args path in
+#     cordis.patch.yml (see README.md).
 #   - GODOT_PATH: taken from -GodotPath, else the user environment variable. If missing, project
 #     management tools still work; runtime game_* tools need a valid Godot path.
 
@@ -18,7 +19,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $PSScriptRoot
+$root = Join-Path (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) 'godot-mcp'
 $serverJs = Join-Path $root 'build\index.js'
 
 function Assert-Node {
