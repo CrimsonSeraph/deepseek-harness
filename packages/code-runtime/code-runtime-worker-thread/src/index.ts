@@ -382,10 +382,8 @@ export class WorkerThreadCodeRuntime extends CodeRuntime {
       env: {},
       // Hermetic flags too: without this the worker inherits the host process's execArgv (a
       // test runner's or tsx's loader hooks), which a bare isolate with an empty environment
-      // cannot satisfy. The --experimental-strip-types flag (Node >=22.6) is required so the
-      // worker can load its own src/worker.ts entry: --import tsx/esm does not apply to worker
-      // threads, and a bare worker thread cannot load TypeScript otherwise.
-      execArgv: ['--experimental-strip-types'],
+      // cannot satisfy.
+      execArgv: [],
       resourceLimits: { maxOldGenerationSizeMb: this.config.maxOldGenerationSizeMb },
       // Backstop capture: the bootstrap patches JS-level writes into its own
       // ordered buffer, so these pipes normally stay silent; anything that
