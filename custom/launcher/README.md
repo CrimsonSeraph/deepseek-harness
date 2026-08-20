@@ -9,7 +9,7 @@
 | 文件 | 作用 |
 | --- | --- |
 | `start-dsh.bat` | 入口：环境检测、端口检测、启动后端窗口、打开应用/等待页 |
-| `_backend.cmd` | 后端窗口内执行的步骤：git pull → pnpm install → build → lefthook → pnpm dsh web --no-open |
+| `_backend.cmd` | 后端窗口内执行的步骤：浅拉取（fetch --depth=1）→ pnpm install → build → lefthook → pnpm dsh web --no-open |
 | `launcher.html` | 启动等待页：轮询端口，就绪后自动跳转（支持 `?port=` 参数） |
 | `.gitattributes` | 限定本目录 `.bat`/`.cmd` 工作区为 CRLF（仓库内仍为 LF），保证 cmd.exe 可靠解析 |
 
@@ -25,7 +25,8 @@
 2. 检测端口（默认 `3080`）是否已被监听：
    - 已在运行 → 直接打开应用，**不会**重复启动后端；
    - 未运行 → 在独立控制台窗口（标题 `DeepSeek Harness backend`）中依次执行
-     拉取、安装依赖、构建、安装 git hooks（仅首次）、启动 `pnpm dsh web --no-open`，
+     **浅拉取**（`git fetch --depth=1` + `git reset --hard FETCH_HEAD`，只取目标分支最新提交，本地仅保留最新一次提交）、
+     安装依赖、构建、安装 git hooks（仅首次）、启动 `pnpm dsh web --no-open`，
      同时打开 `launcher.html` 轮询等待就绪；
      `--no-open` 禁止 dsh web 自行打开浏览器，应用窗口统一由启动器打开（避免双窗口）；
 3. 浏览器选择：Edge → Chrome → 系统默认浏览器。
@@ -36,11 +37,13 @@
 | --- | --- | --- |
 | `DSH_PORT` | `3080` | 服务端口（同时用于端口检测与 URL） |
 | `DSH_APP_DIR` | 脚本位置推导 | 仓库根目录覆盖 |
-| `DSH_NO_PULL` | - | 设为任意值跳过 git pull |
+| `DSH_NO_PULL` | - | 设为任意值跳过浅拉取 |
 | `DSH_NO_INSTALL` | - | 设为任意值跳过 pnpm install |
 | `DSH_NO_BUILD` | - | 设为任意值跳过 pnpm run build（日常已构建时可加快启动） |
 | `DSH_NO_BROWSER` | - | 设为任意值不打开浏览器（用于无头/CI 场景） |
 | `DSH_DRY_RUN` | - | 仅打印后端步骤，不真正执行（诊断用） |
+| `DSH_PULL_BRANCH` | `master` | 浅拉取的目标分支 |
+| `DSH_PULL_FORCE` | - | 本地有未推送提交时仍强制对齐远端（reset --hard） |
 
 示例：日常快速启动（不拉取、不重装、不重建）：
 
@@ -51,8 +54,14 @@ start-dsh.bat
 
 ## 与上游同步
 
-`custom/` 路径在上游仓库中不存在，`git pull` 合并上游更新时不会与之冲突；
-如需整体移除本地扩展，删除 `custom/` 目录即可。
+`custom/` 路径在上游仓库中不存在，合并上游更新时不会与之冲突；如需整体移除本地扩展，删除 `custom/` 目录即可。
+
+## 浅拉取说明
+
+- 每次启动执行 `git fetch --depth=1 origin <分支>`，只下载目标分支的最新一次提交；
+- 拉取后本地仅保留最新一次提交（`reflog expire` + `git gc --prune=now` 清理旧对象），仓库始终处于浅克隆状态；
+- **安全保护**：工作区有未提交修改时跳过更新；本地有未推送提交时保留本地并提示（推送后可自动对齐，或设 `DSH_PULL_FORCE=1` 强制对齐）；
+- 本地提交请先推送到远端再更新，否则会被浅拉取对齐时丢弃。
 
 ## 故障排查
 
