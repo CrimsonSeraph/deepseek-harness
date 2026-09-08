@@ -21,11 +21,11 @@ cd /d "%APP_DIR%"
 if defined DSH_DRY_RUN (
   echo [DRY RUN] 以下步骤将被执行（不会真正运行）:
   echo   - git fetch --depth=1 origin master + git reset --hard FETCH_HEAD（浅拉取，仅保留最新提交）
-echo   - git submodule update --init --recursive（同步子模块到记录版本）
+  echo   - git submodule update --init --recursive（同步子模块到记录版本）
   echo   - pnpm install --ignore-scripts
   echo   - pnpm run build
   echo   - npx lefthook install（仅当 .git\hooks 未安装时）
-  echo   - pnpm dsh web --no-open
+  echo   - pnpm dsh web
   echo [DRY RUN] 完毕。本窗口由 cmd /k 保持打开，可直接关闭。
   exit /b 0
 )
@@ -123,5 +123,11 @@ if not exist "%APP_DIR%\.git\hooks\pre-commit" (
 )
 
 rem [4/4] 启动 Web 服务
-echo [4/4] 启动 Web 服务: pnpm dsh web --no-open ^(按 Ctrl+C 可停止，关闭本窗口即停止服务^)
-call pnpm dsh web --no-open
+echo [4/4] 启动 Web 服务 (按 Ctrl+C 或关闭本窗口即停止服务)...
+if defined DSH_NO_BROWSER (
+  echo   DSH_NO_BROWSER 已设置：使用 --no-open，不打开应用窗口。
+  call pnpm dsh web --no-open
+) else (
+  echo   服务就绪后将在专属应用窗口中打开 dsh web。
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0run-web.ps1" "%APP_DIR%"
+)

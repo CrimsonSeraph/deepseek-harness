@@ -57,14 +57,8 @@ if "%IS_RUNNING%"=="1" (
 )
 
 echo 服务未运行，正在独立窗口中启动后端（拉取/安装/构建/启动，详见 _backend.cmd）...
+echo 构建进度与 dsh web 输出显示在后台控制台窗口；就绪后自动打开专属应用窗口。
 start "DeepSeek Harness backend" /d "%APP_DIR%" cmd /k ""%~dp0_backend.cmd""
-
-if defined DSH_NO_BROWSER exit /b 0
-if exist "%LAUNCHER_HTML%" (
-  call :open_browser "file:///%LAUNCHER_HTML:\=/%"
-) else (
-  call :open_browser "%URL%"
-)
 exit /b 0
 
 :open_app
