@@ -1,7 +1,8 @@
 # 本地已安装第三方插件清单（custom/plugins）
 
 本目录记录本机在 DSH Web 运行环境中安装的**非上游（第三方）插件**清单及其安装方式，
-供重装、迁移、审计参考。快照时间：2026-08；上游仓库自带插件（`@deepseek-ai/dsh-*`）不在此列。
+供重装、迁移、审计参考。快照时间：2026-09（在原 2026-08 基础上补充 `dsh-vision-router`）；
+上游仓库自带插件（`@deepseek-ai/dsh-*`）不在此列。
 数据来自用户 web profile（`%USERPROFILE%\.dsh\profiles\web`），本文不含任何用户私人数据。
 
 ## 安装方式汇总
@@ -17,6 +18,8 @@ DSH 插件通过 **profile 机制**安装：每个 profile（如 `web`）在
 ```bat
 rem 安装（示例：全家桶聚合包）
 dsh plugin --profile web add @linxin666/dsh-web-ui-all
+rem 安装（示例：独立视觉路由插件）
+dsh plugin --profile web add dsh-vision-router
 rem 卸载
 dsh plugin --profile web remove <包名>
 rem 升级聚合包
@@ -90,14 +93,16 @@ dsh-skin use miku
 | 包名 | 版本 | 说明 | 安装命令 |
 | --- | --- | --- | --- |
 | `dsh-session-manager` | 0.1.2 | 会话管理：删除会话需确认、归档管理 | `dsh plugin --profile web add dsh-session-manager` |
+| `dsh-vision-router` | latest | 视觉路由插件：为纯文本模型提供 `vision_screenshot`、`vision_ocr`、`vision_locate` 等工具，支持 LM Studio/Ollama 本地视觉后端与云链降级 | `dsh plugin --profile web add dsh-vision-router` |
 
 ## 来源仓库
 
 | 仓库 | 说明 |
 | --- | --- |
-| https://github.com/zhu1090093659/dsh-web-ui | dsh-web-ui 插件全家桶（`@linxin666/*`：聚合包、ssh、task-board、liangshen 等） |
-| https://github.com/omdsh-dev/DSH-better-sidebar | dsh-better-sidebar |
-| https://github.com/hkkz9522/dsh-session-manager | dsh-session-manager |
+| <https://github.com/zhu1090093659/dsh-web-ui> | dsh-web-ui 插件全家桶（`@linxin666/*`：聚合包、ssh、task-board、liangshen 等） |
+| <https://github.com/omdsh-dev/DSH-better-sidebar> | dsh-better-sidebar |
+| <https://github.com/hkkz9522/dsh-session-manager> | dsh-session-manager |
+| <https://github.com/ysr666/dsh-vision-router> | dsh-vision-router |
 
 ## 本机数据位置（用户数据，不入库）
 
@@ -111,6 +116,7 @@ dsh-skin use miku
 
 ## 注意事项
 
-1. 版本为 2026-08 快照，实际以 `npm view <包名> version` 或 GUI 插件管理器的更新检查为准；
+1. 版本为 2026-09 快照，实际以 `npm view <包名> version` 或 GUI 插件管理器的更新检查为准；
 2. 升级全家桶后如遇皮肤/面板异常，先检查 `~/.dsh/cordis.patch.yml` 托管段与 profile 的 `pnpm-lock.yaml`；
-3. SSH 密码以明文存放于用户主目录私有文件，传输/执行消耗真实远程资源，操作前先确认。
+3. SSH 密码以明文存放于用户主目录私有文件，传输/执行消耗真实远程资源，操作前先确认；
+4. `dsh-vision-router` 需要 Node ≥ 22 与 DSH Web profile；若使用 LM Studio 本地视觉后端，需 LM Studio ≥ 0.4.1 并启动 OpenAI 兼容服务（默认 `http://localhost:1234/v1`）。
