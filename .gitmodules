@@ -2,3 +2,6 @@
 	path = custom/MCP/game-engine/godot-mcp
 	url = https://github.com/CrimsonSeraph/godot-mcp.git
 	branch = main
+[submodule "custom"]
+	path = custom
+	url = git@github.com:CrimsonSeraph/DSH-Custom.git
