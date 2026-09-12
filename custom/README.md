@@ -14,8 +14,8 @@
 | `launcher/` | Web 启动脚本（start-dsh.bat、_backend.cmd、launcher.html、README） |
 | `plugins/` | 本地已安装第三方插件清单与安装方式（2026-08 快照） |
 | `MCP/` | 本机 MCP 工具集（godot-mcp、qtcreator-mcp）：可运行副本、安装/使用说明、快捷启动脚本、DSH 注册片段 |
-| `skills/` | 个人 agent skill 包，每个 skill 一个目录、内含 `SKILL.md`；用法与接入方式见 [`skills/README.md`](skills/README.md) |
-| `tools/` | 可独立运行的命令行工具与脚本（Qt/QML 截图链路等）；逐个工具的用途、参数、退出码见 [`tools/README.md`](tools/README.md) |
+| `skills/` | 个人 agent skill 包，每个 skill 一个目录、内含 `SKILL.md`；用法与接入方式见 [`skills/README.md`](skills/README.md)。当前含 `qt-screenshot`（Qt/QML 窗口截图）、`local-vision`（本地 LM Studio 视觉识图） |
+| `tools/` | 可独立运行的命令行工具与脚本（Qt/QML 截图链路、LM Studio 模型路由代理等）；逐个工具的用途、参数、退出码见 [`tools/README.md`](tools/README.md) |
 
 ## skills/ 与 tools/ 的分工
 

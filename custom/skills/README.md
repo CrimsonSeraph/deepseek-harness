@@ -32,6 +32,7 @@ whenToUse: <何时该用这个 skill>   # 可选；触发场景
 | skill | 用途 |
 | --- | --- |
 | `qt-screenshot/` | 给 Qt/QML 应用启动真实窗口并按窗口句柄截图（视觉检查、多尺寸回归、排查窗口出不来 / 截图为空白 / 脚本卡死） |
+| `local-vision/` | 看图默认走本机 LM Studio 视觉模型（经 `custom/tools/LMStudio/` 的 router 代理按 `model` 字段自动切换），避免 DSH 原生读图的高 token 开销；含模型选型、切换/卸载、降级顺序与故障排查 |
 
 ## 如何将 skill 接入 DSH
 

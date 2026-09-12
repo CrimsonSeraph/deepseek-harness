@@ -6,17 +6,25 @@
 - 参数一律显式传入或用环境变量覆盖，**脚本内不写死本机绝对路径**；
 - 退出码语义明确：`0` 只代表真正成功，失败一律非 0，且失败路径有时间上限（不会挂住）。
 
-当前工具集是 **Qt/QML 窗口截图链路**：给 Qt/QML 桌面应用启动真实窗口，
-按窗口句柄抓图，用于视觉检查与多尺寸回归对比。
+当前工具集分两组：
 
-## 依赖
+| 工具集 | 目录 | 用途 |
+| --- | --- | --- |
+| **Qt/QML 截图链路** | 本目录（`shoot.sh` 等） | 给 Qt/QML 桌面应用启动真实窗口，按窗口句柄抓图，用于视觉检查与多尺寸回归对比 |
+| **LM Studio 模型路由代理** | [`LMStudio/`](LMStudio/README.md) | OpenAI 兼容代理：按请求的 `model` 字段自动在 LM Studio 中卸载/加载模型；供本地视觉任务使用（见 [`../skills/local-vision/SKILL.md`](../skills/local-vision/SKILL.md)） |
+
+## 工具集一：Qt/QML 窗口截图
+
+给 Qt/QML 桌面应用启动真实窗口，按窗口句柄抓图。
+
+### 依赖
 
 - MSYS2 / Git Bash 环境（提供 `bash`、`cygpath`、`timeout`、`sed`、`od`、`taskkill`）
 - Windows PowerShell 5.1（`powershell.exe`）
 - Qt 运行时：`qml.exe`（`<Qt 安装根>/<版本>/<kit>/bin`）
 - 可选：无。PNG 尺寸校验直接从 IHDR 读，不依赖 python
 
-## 快速开始
+### 快速开始
 
 ```bash
 TOOLS=<仓库根>/custom/tools
@@ -36,7 +44,7 @@ cp "$TOOLS/../skills/qt-screenshot/resources/shots.qml.example"  "$WORK/template
     --size 320x568:mobile:mobile-320x568
 ```
 
-## 环境变量
+### 环境变量
 
 | 变量 | 作用 | 默认 |
 | --- | --- | --- |
@@ -50,7 +58,7 @@ cp "$TOOLS/../skills/qt-screenshot/resources/shots.qml.example"  "$WORK/template
 | `SHOT_BACKEND` | Qt Quick 后端 | `software` |
 | `QT_SHOT_TOOLS` | 工具目录位置（skill 正文用它定位脚本） | 空 |
 
-## lib.sh
+### lib.sh
 
 共用函数库，被同目录脚本以 `source` 方式加载，不单独执行。
 导出：日志与 `die`、`abs_path` / `to_winpath`（`cygpath -w`）、`safe_rm_rf`（删除前校验路径在工作目录内）、
@@ -58,7 +66,7 @@ cp "$TOOLS/../skills/qt-screenshot/resources/shots.qml.example"  "$WORK/template
 `kill_render_process` / `kill_stale_renderers`、`qt_bin_dir`、`now_ms`、
 `png_size`（读 IHDR 取真实宽高）、`report_qml_log`（提炼日志里的 QML 错误）。
 
-## preflight.sh
+### preflight.sh
 
 截图前的环境自检：必需命令、Qt 与 `qml.exe`、残留 `qml.exe`、QML 源目录、
 `qmldir` 正确性（模块头 / 每个 `*.qml` 都有条目）、截图模板的三个标记与标题标识。
@@ -70,7 +78,7 @@ preflight.sh [--qml <模板>] [--src <QML 源目录>] [--module-dir <模块根>]
 
 退出码：`0` 通过；`3` 有检查项不通过（缺什么会逐条列出）。
 
-## cap.ps1
+### cap.ps1
 
 按窗口标题（可选按 Windows PID）定位**可见**窗口，用 `PrintWindow(PW_RENDERFULLCONTENT)`
 抓取该窗口自身位图并保存为 PNG。不抓全屏，因此不会被其它窗口遮挡，也不会拍进桌面无关内容。
@@ -123,7 +131,7 @@ OK hwnd=0x005A0DF2 pid=14736 title=[SHOTWIN] size=1493x997 dpi=120 method=printw
 > Windows PowerShell 5.1 会把无 BOM 的 `.ps1` 当 ANSI/GBK 解析，中文注释会变成乱码并报出
 > `Missing expression after ','` 之类与真实原因无关的语法错误。
 
-## shoot.sh
+### shoot.sh
 
 抓单个尺寸：生成 `cur.qml` → 清残留 → 启动 `qml.exe` → 等窗口 → 调 `cap.ps1` 抓图 →
 校验 PNG → 清理进程与临时文件。
@@ -159,7 +167,7 @@ OK name=desktop-1180x760 kind=desktop requested=1180x760 actual=1493x997 bytes=5
 `actual` 是含窗口边框的物理像素（125% 缩放时约等于 逻辑尺寸 × 1.25 + 边框），
 与 `requested` 不同属正常；需要严格相等时加 `--strict-size`。
 
-## run_shots.sh
+### run_shots.sh
 
 批量流程：前置自检 → 建模块目录与 `qmldir` → 离屏烟测 → 逐尺寸调用 `shoot.sh` → 汇总表。
 
@@ -183,7 +191,7 @@ run_shots.sh --src <QML 源目录> [选项] [--size 宽x高:desktop|mobile:输�
 
 成功时打印汇总表（名称、PNG 真实尺寸、字节数、文件路径）。
 
-## selftest.sh
+### selftest.sh
 
 故意失败测试：验证「出不来、给错、崩溃、空白」这些路径都有时间上限并且返回非 0。
 
@@ -205,7 +213,7 @@ selftest.sh --template <可用模板> [--module-dir <模块根>] [--work-dir <�
 
 退出码：`0` 全部符合预期 / `1` 有不符合预期的用例 / `3` 前置条件不满足。
 
-## 设计约束
+### 设计约束
 
 这些约束是本工具集存在的理由，改动脚本时不要退化：
 
@@ -216,3 +224,29 @@ selftest.sh --template <可用模板> [--module-dir <模块根>] [--work-dir <�
 5. 清理用 `taskkill //F //T //PID <winpid>`，只针对本次启动的进程；按镜像名杀进程只作兜底。
 6. 删除文件/目录必须显式开启（`--clean-*`）且校验目标在工作目录之内，禁止无保护的 `rm -rf`。
 7. 传给 Windows 原生命令的路径一律经 `cygpath -w -a` 转换。
+
+## 工具集二：LM Studio 模型路由代理（`LMStudio/`）
+
+`lmstudio_router.py` 是 DSH 与 LM Studio 之间的 OpenAI 兼容代理：
+收到请求后按 `model` 字段自动**卸载旧模型 → 加载目标模型 → 转发请求**，
+让「看图」这类任务走本地视觉模型，而不是把图片塞进主模型上下文。
+附带 `status` / `models` / `load` / `unload` / `ask` 子命令。
+
+```bash
+cd LMStudio
+PYTHONIOENCODING=utf-8 python lmstudio_router.py serve          # 启动代理 :1235
+python lmstudio_router.py status                                # 连通性 + 已加载模型
+python lmstudio_router.py load minicpm-v-2_6                    # 切换模型
+python lmstudio_router.py unload --all                          # 释放显存
+python lmstudio_router.py ask --image shot.png "图里有什么？"     # 直接提问
+```
+
+| 变量 | 默认 | 含义 |
+| --- | --- | --- |
+| `LMSTUDIO_BASE` | `http://localhost:1234` | LM Studio 地址 |
+| `LMSTUDIO_ROUTER_PORT` | `1235` | 代理监听端口 |
+| `LMSTUDIO_VISION_MODEL` | `qwen2.5-vl-7b-instruct` | `model="auto"` 解析到的视觉模型 |
+
+依赖 `fastapi` / `uvicorn` / `requests`（`serve` 需要，其余子命令只需标准库）。
+可用模型、端点与故障排查见 [`LMStudio/README.md`](LMStudio/README.md)；
+agent 侧的使用方式与降级顺序见 [`../skills/local-vision/SKILL.md`](../skills/local-vision/SKILL.md)。
